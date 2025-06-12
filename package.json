@@ -5,7 +5,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "install": "npm install --include=optional sharp"
+  },
+  "engines": {
+    "node": "20.x"
   },
   "keywords": [],
   "author": "",
