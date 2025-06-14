@@ -9,6 +9,7 @@ const commentSchema = new mongoose.Schema({
 const imageSchema = new mongoose.Schema({
   uploader: String,
   imageUrls: [String],
+  originalUrls: [String],
   comments: [commentSchema],
   likes: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },

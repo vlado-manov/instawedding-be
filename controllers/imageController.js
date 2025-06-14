@@ -1,24 +1,63 @@
 const Image = require("../models/Image");
 const { compressImage } = require("../utils/imageProcessor");
+const cloudinary = require("../utils/cloudinary");
+const fs = require("fs");
 const path = require("path");
 
 exports.uploadImages = async (req, res) => {
-  const uploader = req.body.uploader;
-  const compressedPaths = [];
+  try {
+    const uploader = req.body.uploader;
+    const originalUrls = [];
+    const compressedUrls = [];
+    const isPortraits = [];
 
-  for (const file of req.files) {
-    const compressedPath = `uploads/compressed-${file.filename}`;
-    await compressImage(file.path, compressedPath);
-    compressedPaths.push(compressedPath);
+    for (const file of req.files) {
+      // Upload original to Cloudinary
+      const originalUpload = await cloudinary.uploader.upload(file.path, {
+        folder: "instawedding/originals",
+      });
+
+      originalUrls.push(originalUpload.secure_url);
+
+      // Compress image locally
+      const compressedPath = `uploads/compressed-${file.filename}`;
+      await compressImage(file.path, compressedPath);
+
+      // Upload compressed to Cloudinary
+      const compressedUpload = await cloudinary.uploader.upload(
+        compressedPath,
+        {
+          folder: "instawedding/compressed",
+        }
+      );
+
+      compressedUrls.push(compressedUpload.secure_url);
+
+      // Check orientation
+      const isPortrait = compressedUpload.height > compressedUpload.width;
+      isPortraits.push(isPortrait);
+
+      // Cleanup local files
+      fs.unlinkSync(file.path);
+      fs.unlinkSync(compressedPath);
+    }
+
+    const newImage = new Image({
+      uploader,
+      imageUrls: compressedUrls,
+      originalUrls,
+      comments: [],
+      likes: 0,
+      hidden: false,
+      isPortrait: isPortraits[0] ?? false,
+    });
+
+    await newImage.save();
+    res.json(newImage);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Upload failed." });
   }
-
-  const newImage = new Image({
-    uploader,
-    imageUrls: compressedPaths,
-  });
-
-  await newImage.save();
-  res.json(newImage);
 };
 
 exports.getImages = async (req, res) => {

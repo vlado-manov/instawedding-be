@@ -4,9 +4,9 @@ const Image = require("../models/Image");
 
 const ADMIN_USERS = [
   { username: "tedi", password: "kriskoegei" },
-  { username: "milen", password: "marokobaby" },
-  { username: "titi", password: "bebche" },
-  { username: "vlado", password: "izmekqr" },
+  { username: "milen", password: "mendisushto" },
+  { username: "titi", password: "begachka" },
+  { username: "vlado", password: "ribamech" },
 ];
 
 router.post("/login", (req, res) => {
