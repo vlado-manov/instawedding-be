@@ -19,7 +19,7 @@ router.post("/login", (req, res) => {
 
 router.post("/hide/:id", async (req, res) => {
   const image = await Image.findById(req.params.id);
-  image.hidden = true;
+  image.hidden = !image.hidden; // toggle
   await image.save();
   res.json(image);
 });
