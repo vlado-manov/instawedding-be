@@ -12,6 +12,7 @@ const imageSchema = new mongoose.Schema({
   originalUrls: [String],
   comments: [commentSchema],
   likes: { type: Number, default: 0 },
+  likedBy: [String],
   createdAt: { type: Date, default: Date.now },
   hidden: { type: Boolean, default: false },
   isPortrait: { type: Boolean, default: false },

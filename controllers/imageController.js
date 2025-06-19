@@ -7,6 +7,8 @@ const path = require("path");
 exports.uploadImages = async (req, res) => {
   try {
     const uploader = req.body.uploader;
+    console.log("Uploader received:", req.body.uploader);
+
     const originalUrls = [];
     const compressedUrls = [];
     const isPortraits = [];
@@ -73,10 +75,23 @@ exports.getImages = async (req, res) => {
 };
 
 exports.likeImage = async (req, res) => {
+  const { userId } = req.body;
   const image = await Image.findById(req.params.id);
-  image.likes += 1;
+
+  if (!image.likedBy) image.likedBy = [];
+
+  const index = image.likedBy.indexOf(userId);
+
+  if (index === -1) {
+    image.likedBy.push(userId);
+  } else {
+    image.likedBy.splice(index, 1);
+  }
+
+  image.likes = image.likedBy.length;
+
   await image.save();
-  res.json(image);
+  res.json({ likes: image.likes, liked: index === -1 });
 };
 
 exports.commentImage = async (req, res) => {
